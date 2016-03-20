@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="Alkadia.Roslyn.CodeRefactoring..1e346dbf-3e53-4626-ad7e-7d948cdcc1c9" Version="1.0" Language="en-US" Publisher="DarkHarlock"/>
-    <DisplayName>Alkadia.Roslyn.CodeRefactoring</DisplayName>
+    <Identity Id="Alkadia.Roslyn.CodeRefactoring..1e346dbf-3e53-4626-ad7e-7d948cdcc1c9" Version="1.0" Language="en-US" Publisher="Bruno Sirianni"/>
+    <DisplayName>Alkadia Roslyn CodeRefactoring</DisplayName>
     <Description xml:space="preserve">Roslyn Code Refactoring Utilities</Description>
+    <MoreInfo>https://github.com/DarkHarlock/Alkadia.Roslyn.CodeRefactoring</MoreInfo>
     <License>license.txt</License>
+    <Tags>namespace roslyn class move rename fix</Tags>
   </Metadata>
   <Installation>
     <InstallationTarget Version="[14.0,]" Id="Microsoft.VisualStudio.Pro" />
