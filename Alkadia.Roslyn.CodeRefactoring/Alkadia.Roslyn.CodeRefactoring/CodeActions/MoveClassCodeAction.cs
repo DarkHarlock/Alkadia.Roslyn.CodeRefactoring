@@ -3,10 +3,10 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Alkadia.Roslyn.CodeRefactoring.Utilities;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeActions;
     using Microsoft.CodeAnalysis.CSharp;
+    using Utilities;
     public class MoveClassCodeAction : CodeAction
     {
         private readonly string _folders;

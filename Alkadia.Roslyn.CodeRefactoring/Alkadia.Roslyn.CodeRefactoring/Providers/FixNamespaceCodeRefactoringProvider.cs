@@ -4,13 +4,11 @@ namespace Alkadia.Roslyn.CodeRefactoring.Providers
     using System.Composition;
     using System.Linq;
     using System.Threading.Tasks;
-    using Utilities;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeRefactorings;
-    using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
-    using Alkadia.Roslyn.CodeRefactoring.CodeActions;
-
+    using CodeActions;
+    using Utilities;
     [ExportCodeRefactoringProvider(RefactoringId, LanguageNames.CSharp), Shared]
     public class FixNamespaceCodeRefactoringProvider : CodeRefactoringProvider
     {
@@ -53,8 +51,8 @@ namespace Alkadia.Roslyn.CodeRefactoring.Providers
             var typeDeclarations = namespaceDecl.GetRootBaseTypeDeclarations();
             if (!typeDeclarations.Any()) return;
 
-            var folders = 
-                isAssemblyBasedNamespace 
+            var folders =
+                isAssemblyBasedNamespace
                     ? currentNamespace
                         .Substring(context.Document.Project.AssemblyName.Length)
                         .Split('.')
@@ -62,32 +60,36 @@ namespace Alkadia.Roslyn.CodeRefactoring.Providers
                         .ToArray()
                     : new string[] { };
 
-            //check for file rename
-            foreach (var typedecl in typeDeclarations)
+            var declarations = typeDeclarations.Select(typedecl => new
             {
-                var typeName = typedecl.Identifier.ValueText;
-                if (string.IsNullOrWhiteSpace(typeName))
-                    typeName = currentName;
+                typedecl,
+                typeName = string.IsNullOrWhiteSpace(typedecl.Identifier.ValueText) ? currentName : typedecl.Identifier.ValueText
+            }).ToArray();
 
-                if (string.Compare(currentName, typeName, StringComparison.OrdinalIgnoreCase) != 0)
+            //check for file rename
+            foreach (var typedecl in declarations)
+            {
+                if (string.Compare(currentName, typedecl.typeName, StringComparison.OrdinalIgnoreCase) != 0)
                 {
-                    context.RegisterRefactoring(new MoveDocumentCodeAction(new MoveDocumentCodeActionContext
+                    context.RegisterRefactoring(new RenameDocumentCodeAction(new RenameDocumentCodeActionContext
                     {
                         DocumentId = document.Id,
                         Solution = solution,
-                        Name = typeName,
-                        Folders = document.Folders,
-                        IsRename = true
+                        Name = typedecl.typeName
                     }));
                 }
+            }
 
+            //check for file move
+            foreach (var typedecl in declarations)
+            {
                 if (isAssemblyBasedNamespace && !isSameNamespace)
                 {
                     context.RegisterRefactoring(new MoveDocumentCodeAction(new MoveDocumentCodeActionContext
                     {
                         DocumentId = document.Id,
                         Solution = solution,
-                        Name = typeName,
+                        Name = typedecl.typeName,
                         Folders = folders
                     }));
                 }

@@ -2,9 +2,9 @@
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using CodeRefactoring.CodeActions;
     using Microsoft.CodeAnalysis;
     using Xunit;
+    using CodeRefactoring.CodeActions;
 
     public class ChangeNamespaceCodeActionTests
     {

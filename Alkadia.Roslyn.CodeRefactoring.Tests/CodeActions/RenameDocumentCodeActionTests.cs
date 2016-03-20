@@ -6,11 +6,12 @@
     using Microsoft.CodeAnalysis;
     using Xunit;
     using CodeRefactoring.CodeActions;
-    public class MoveDocumentCodeActionTests
+
+    public class RenameDocumentCodeActionTests
     {
-        private class TestableMoveDocumentCodeAction : MoveDocumentCodeAction
+        private class TestableRenameDocumentCodeAction : RenameDocumentCodeAction
         {
-            public TestableMoveDocumentCodeAction(MoveDocumentCodeActionContext fix)
+            public TestableRenameDocumentCodeAction(RenameDocumentCodeActionContext fix)
                 : base(fix)
             {
 
@@ -42,7 +43,7 @@
         }
 
         [Fact]
-        public async Task Should_move_file()
+        public async Task Should_rename_file()
         {
             var documentToMove = @"namespace Foo {
     public class Test {
@@ -53,25 +54,22 @@
             var project = CreateProject(CreateSolution(), "TestSuite");
             var doc = project.AddDocument("test.cs", documentToMove);
 
-            var folders = new[] { "Inner", "Nested" };
-            var action = new TestableMoveDocumentCodeAction(new MoveDocumentCodeActionContext
+            var action = new TestableRenameDocumentCodeAction(new RenameDocumentCodeActionContext
             {
                 DocumentId = doc.Id,
                 Solution = doc.Project.Solution,
-                Folders = folders,
                 Name = "Success"
             });
 
-            Assert.Equal(@"Move File to '\Inner\Nested\Success.cs'", action.Title);
+            Assert.Equal(@"Rename File to 'Success.cs'", action.Title);
 
             var result = await action.Execute(CancellationToken.None);
 
-            Assert.Null(result.GetDocument(doc.Id));
-            var newDoc = result.GetProject(project.Id).Documents.Where(d => d.Name == "Success.cs").FirstOrDefault();
-            Assert.NotNull(newDoc);
-            Assert.Equal(2, newDoc.Folders.Zip(folders, (a, b) => a == b).Count());
-
-            Assert.Equal(documentToMove, (await newDoc.GetTextAsync()).ToString());
+            var document = result.GetDocument(doc.Id);
+            Assert.Null(document);
+            document = result.GetProject(project.Id).Documents.Where(d => d.Name == "Success.cs").FirstOrDefault();
+            Assert.NotNull(document);
+            Assert.Equal(documentToMove, (await document.GetTextAsync()).ToString());
         }
     }
 

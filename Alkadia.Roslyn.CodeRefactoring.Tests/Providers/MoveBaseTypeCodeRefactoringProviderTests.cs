@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using CodeRefactoring.Providers;
     using FakeItEasy;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeActions;

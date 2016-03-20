@@ -152,6 +152,7 @@
     <Compile Include="AutoFakeItEasyDataAttribute.cs" />
     <Compile Include="CodeActions\ChangeNamespaceCodeActionTests.cs" />
     <Compile Include="CodeActions\MoveDocumentCodeActionTests.cs" />
+    <Compile Include="CodeActions\RenameDocumentCodeActionTests.cs" />
     <Compile Include="Providers\FixNamespaceCodeRefactoringProviderTests.cs" />
     <Compile Include="ICodeRefactoringContextSubscriber.cs" />
     <Compile Include="Providers\MoveBaseTypeCodeRefactoringProviderTests.cs" />

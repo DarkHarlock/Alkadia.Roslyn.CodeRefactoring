@@ -342,15 +342,13 @@ namespace TestSuite {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<RenameDocumentCodeAction>().ToArray();
             Assert.Equal(2, moveActions.Length);
 
             Assert.Equal("Foo", moveActions[0].FixParameters.Name);
-            moveActions[0].FixParameters.Folders.ShouldBeEquivalentTo(new string[0]);
             Assert.Equal($@"Rename File to '{moveActions[0].FixParameters.Name}.cs'", moveActions[0].Title);
 
             Assert.Equal("Other", moveActions[1].FixParameters.Name);
-            moveActions[1].FixParameters.Folders.ShouldBeEquivalentTo(new string[0]);
             Assert.Equal($@"Rename File to '{moveActions[1].FixParameters.Name}.cs'", moveActions[1].Title);
         }
 
@@ -385,7 +383,7 @@ namespace TestSuite.Folder {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<RenameDocumentCodeAction>().ToArray();
             Assert.Equal(2, moveActions.Length);
 
             Assert.Equal("Foo", moveActions[0].FixParameters.Name);
@@ -423,14 +421,11 @@ namespace TestSuite.Folder {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<RenameDocumentCodeAction>().ToArray();
             Assert.Equal(2, moveActions.Length);
 
             Assert.Equal("Foo", moveActions[0].FixParameters.Name);
-            moveActions[0].FixParameters.Folders.ShouldBeEquivalentTo(new string[] { });
-
             Assert.Equal("Other", moveActions[1].FixParameters.Name);
-            moveActions[1].FixParameters.Folders.ShouldBeEquivalentTo(new string[] { });
         }
 
         [Theory]
@@ -464,18 +459,16 @@ namespace Tests {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().ToArray();
+            var moveActions = created.OfType<RenameDocumentCodeAction>().ToArray();
             Assert.Equal(2, moveActions.Length);
 
-            var action = moveActions[0] as MoveDocumentCodeAction;
+            var action = moveActions[0];
             Assert.NotNull(action);
             Assert.Equal("Foo", action.FixParameters.Name);
-            Assert.True(action.FixParameters.IsRename);
 
-            action = moveActions[1] as MoveDocumentCodeAction;
+            action = moveActions[1];
             Assert.NotNull(action);
             Assert.Equal("Other", action.FixParameters.Name);
-            Assert.True(action.FixParameters.IsRename);
         }
 
         [Theory]
@@ -508,7 +501,7 @@ namespace TestSuite.Test {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<RenameDocumentCodeAction>().ToArray();
             Assert.Equal(0, moveActions.Length);
         }
 
@@ -543,7 +536,8 @@ namespace TestSuite {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => !m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<MoveDocumentCodeAction>().ToArray();
+            Assert.True(!moveActions.Any());
         }
 
         [Theory]
@@ -577,11 +571,10 @@ namespace TestSuite.Folder {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => !m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<MoveDocumentCodeAction>().ToArray();
             Assert.Equal(0, moveActions.Length);
         }
 
-        /**/
         [Theory]
         [AutoFakeItEasyData]
         public async Task Should_register_MoveDocument_when_namespace_is_assembly_based_for_each_class(
@@ -613,7 +606,7 @@ namespace TestSuite {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => !m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<MoveDocumentCodeAction>().ToArray();
             Assert.Equal(3, moveActions.Length);
 
             Assert.Equal("Foo", moveActions[0].FixParameters.Name);
@@ -628,8 +621,6 @@ namespace TestSuite {
             moveActions[2].FixParameters.Folders.ShouldBeEquivalentTo(new string[] { });
             Assert.Equal($@"Move File to '{moveActions[2].FixParameters.Name}.cs'", moveActions[2].Title);
         }
-
-        /**/
 
         [Theory]
         [AutoFakeItEasyData]
@@ -660,14 +651,12 @@ namespace TestSuite.Test {
             ))
             .Select(sut.ComputeRefactoringsAsync));
 
-            var moveActions = created.OfType<MoveDocumentCodeAction>().Where(m => !m.FixParameters.IsRename).ToArray();
+            var moveActions = created.OfType<MoveDocumentCodeAction>().ToArray();
             Assert.Equal(1, moveActions.Length);
 
             Assert.Equal("Test", moveActions[0].FixParameters.Name);
             moveActions[0].FixParameters.Folders.ShouldBeEquivalentTo(new[] { "Test" });
         }
-
-
 
     }
 }

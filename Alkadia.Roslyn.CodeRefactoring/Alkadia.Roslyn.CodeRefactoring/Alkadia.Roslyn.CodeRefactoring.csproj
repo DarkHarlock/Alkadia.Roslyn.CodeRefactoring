@@ -39,6 +39,8 @@
     <Compile Include="CodeActions\MoveClassCodeActionContext.cs" />
     <Compile Include="CodeActions\MoveDocumentCodeAction.cs" />
     <Compile Include="CodeActions\MoveDocumentCodeActionContext.cs" />
+    <Compile Include="CodeActions\RenameDocumentCodeAction.cs" />
+    <Compile Include="CodeActions\RenameDocumentCodeActionContext.cs" />
     <Compile Include="Providers\FixNamespaceCodeRefactoringProvider.cs" />
     <Compile Include="Providers\MoveClassToFileCodeRefactoringProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

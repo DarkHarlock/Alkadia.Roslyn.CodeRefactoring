@@ -1,7 +1,5 @@
 ﻿namespace Alkadia.Roslyn.CodeRefactoring.Utilities
 {
-    using System;
-    using System.Collections.Generic;
     using System.Linq;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
@@ -14,7 +12,6 @@
     {
         private static UsingDirectiveSyntax CreateUsing(string @namespace)
         {
-
             return SyntaxFactory.UsingDirective(
                 SyntaxFactory
                 .IdentifierName(@namespace)

@@ -3,9 +3,9 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Alkadia.Roslyn.CodeRefactoring.Utilities;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeActions;
+    using Utilities;
     public class MoveDocumentCodeAction : CodeAction
     {
         private readonly string _folder;
@@ -23,9 +23,7 @@
         {
             get
             {
-                return _fix.IsRename
-                    ? $@"Rename File to '{_name}.cs'"
-                    : $@"Move File to '{_folder}{_name}.cs'";
+                return $@"Move File to '{_folder}{_name}.cs'";
             }
         }
         public MoveDocumentCodeActionContext FixParameters
@@ -46,4 +44,5 @@
             return solution;
         }
     }
+
 }

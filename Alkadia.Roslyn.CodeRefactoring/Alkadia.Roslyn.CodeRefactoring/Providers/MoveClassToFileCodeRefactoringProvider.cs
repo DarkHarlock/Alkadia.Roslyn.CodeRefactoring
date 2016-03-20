@@ -1,14 +1,14 @@
-namespace Alkadia.Roslyn.CodeRefactoring
+namespace Alkadia.Roslyn.CodeRefactoring.Providers
 {
     using System.Composition;
     using System.Linq;
     using System.Threading.Tasks;
-    using Alkadia.Roslyn.CodeRefactoring.Utilities;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CodeRefactorings;
     using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
-    using Alkadia.Roslyn.CodeRefactoring.CodeActions;
+    using CodeActions;
+    using Utilities;
 
     [ExportCodeRefactoringProvider(RefactoringId, LanguageNames.CSharp), Shared]
     public class MoveClassCodeRefactoringProvider : CodeRefactoringProvider
