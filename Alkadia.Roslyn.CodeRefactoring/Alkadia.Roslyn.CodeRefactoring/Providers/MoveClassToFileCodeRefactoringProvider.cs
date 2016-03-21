@@ -22,7 +22,7 @@ namespace Alkadia.Roslyn.CodeRefactoring.Providers
             var solution = project.Solution;
 
             var root = await document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
-            var node = root.FindNode(context.Span).AncestorsAndSelf().OfType< BaseTypeDeclarationSyntax>().FirstOrDefault();
+            var node = root.FindNode(context.Span);
 
             // only for a type declaration node 
             var typeDecl = node as BaseTypeDeclarationSyntax;
@@ -55,7 +55,7 @@ namespace Alkadia.Roslyn.CodeRefactoring.Providers
             }
 
             //where target file does not exist
-            if(project.SearchDocument(newFileName, document.Folders.ToArray()) == null)
+            if (project.SearchDocument(newFileName, document.Folders.ToArray()) == null)
             {
                 context.RegisterRefactoring(new MoveClassCodeAction(new MoveClassCodeActionContext
                 {

@@ -56,6 +56,9 @@ using System;
 namespace Test {
     public class Foo {
         private class Inner { }
+        public Foo() {
+            var innerDecl = new DateTime(2016, 3, 21, 0, 0, 0);
+        }
     }
     public class Other {
         public class InnerOther { }
@@ -71,7 +74,10 @@ namespace Test {
                 "Test",
                 "Inner",
                 "InnerOther",
-                "Error"
+                "Error",
+                "innerDecl",
+                "DateTime",
+                "new"
             }.Select(c => GetContext(
                 CaseTest,
                 new TextSpan(CaseTest.IndexOf(c, StringComparison.Ordinal), c.Length),
