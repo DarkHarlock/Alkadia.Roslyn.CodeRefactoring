@@ -9,14 +9,15 @@
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.FindSymbols;
     using Utilities;
+
     public class ChangeNamespaceCodeAction : CodeAction
     {
         private readonly string _namespace;
-        private readonly ChangeNamespaceCodeActionContext _fix;
-        public ChangeNamespaceCodeAction(ChangeNamespaceCodeActionContext fix)
+        private readonly ChangeNamespaceCodeActionContext _fixContext;
+        public ChangeNamespaceCodeAction(ChangeNamespaceCodeActionContext fixContext)
         {
-            _fix = fix;
-            _namespace = fix.NewNamespace;
+            _fixContext = fixContext;
+            _namespace = fixContext.NewNamespace;
         }
         public override string Title
         {
@@ -24,11 +25,11 @@
         }
         public ChangeNamespaceCodeActionContext FixParameters
         {
-            get { return _fix; }
+            get { return _fixContext; }
         }
         protected override Task<Solution> GetChangedSolutionAsync(CancellationToken cancellationToken)
         {
-            return FixAsync(_fix, cancellationToken);
+            return FixAsync(_fixContext, cancellationToken);
         }
         private static async Task<Solution> FixAsync(ChangeNamespaceCodeActionContext context, CancellationToken cancellationToken)
         {

@@ -35,7 +35,7 @@ namespace Alkadia.Roslyn.CodeRefactoring.Providers
             var @namespace = document.GetConventionalNamespace();
 
             var isSameNamespace = currentNamespace == @namespace;
-            var isAssemblyBasedNamespace = currentNamespace.StartsWith(context.Document.Project.AssemblyName);
+            var isAssemblyBasedNamespace = currentNamespace.StartsWith(context.Document.Project.AssemblyName, StringComparison.Ordinal);
 
             if (!isSameNamespace)
             {

@@ -8,11 +8,11 @@
     public class RenameDocumentCodeAction : CodeAction
     {
         private readonly string _name;
-        private readonly RenameDocumentCodeActionContext _fix;
-        public RenameDocumentCodeAction(RenameDocumentCodeActionContext fix)
+        private readonly RenameDocumentCodeActionContext _fixContext;
+        public RenameDocumentCodeAction(RenameDocumentCodeActionContext fixContext)
         {
-            _fix = fix;
-            _name = fix.Name;
+            _fixContext = fixContext;
+            _name = fixContext.Name;
         }
         public override string Title
         {
@@ -23,19 +23,19 @@
         }
         public RenameDocumentCodeActionContext FixParameters
         {
-            get { return _fix; }
+            get { return _fixContext; }
         }
         protected override Task<Solution> GetChangedSolutionAsync(CancellationToken cancellationToken)
         {
-            return RenameDocumentToFolderAsync(_fix, cancellationToken);
+            return RenameDocumentToFolderAsync(_fixContext, cancellationToken);
         }
-        private static async Task<Solution> RenameDocumentToFolderAsync(RenameDocumentCodeActionContext fix, CancellationToken cancellationToken)
+        private static async Task<Solution> RenameDocumentToFolderAsync(RenameDocumentCodeActionContext context, CancellationToken cancellationToken)
         {
-            var solution = fix.Solution;
-            var document = solution.GetDocument(fix.DocumentId);
+            var solution = context.Solution;
+            var document = solution.GetDocument(context.DocumentId);
             var projectId = document.Project.Id;
-            solution = solution.RemoveDocument(fix.DocumentId);
-            solution = solution.AddDocument(DocumentId.CreateNewId(projectId), $"{fix.Name}.cs", await document.GetTextAsync(cancellationToken), document.Folders);
+            solution = solution.RemoveDocument(context.DocumentId);
+            solution = solution.AddDocument(DocumentId.CreateNewId(projectId), $"{context.Name}.cs", await document.GetTextAsync(cancellationToken), document.Folders);
             return solution;
         }
     }

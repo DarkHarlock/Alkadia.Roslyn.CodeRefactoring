@@ -182,7 +182,7 @@ namespace TestSuite.Inner.Other {
                 "Test",
                 "Suite",
                 "Inner",
-                "Other",
+                "Other"
             }
             .Select(testcase => new TextSpan(CaseTest.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
             .Select(span => root.IsNamespaceDeclaration(span))

@@ -30,7 +30,7 @@
     public class Foo {}
 }";
             var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo"), 1));
+            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), 1));
 
             const string TestExpected = CaseTest;
 
@@ -46,7 +46,7 @@ namespace Test {
     public class Foo {}
 }";
             var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Test"), 1));
+            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Test", StringComparison.Ordinal), 1));
 
             Assert.Null(result);
         }
@@ -61,7 +61,7 @@ namespace Test {
     }
 }";
             var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo"), 1));
+            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), 1));
 
             const string TestExpected = CaseTest;
 
@@ -81,7 +81,7 @@ namespace Test {
     }
 }";
             var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo"), 1));
+            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), 1));
 
             const string TestExpected = @"using System;
 namespace Test {

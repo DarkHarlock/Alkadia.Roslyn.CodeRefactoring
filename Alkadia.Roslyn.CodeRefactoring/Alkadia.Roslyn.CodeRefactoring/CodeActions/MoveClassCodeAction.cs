@@ -10,12 +10,12 @@
     public class MoveClassCodeAction : CodeAction
     {
         private readonly string _folders;
-        private readonly MoveClassCodeActionContext _fix;
-        public MoveClassCodeAction(MoveClassCodeActionContext fix)
+        private readonly MoveClassCodeActionContext _fixContext;
+        public MoveClassCodeAction(MoveClassCodeActionContext fixContrext)
         {
-            _fix = fix;
+            _fixContext = fixContrext;
             var bs = "\\";
-            var folder = (fix.Folders ?? new string[0]).Join(bs);
+            var folder = (fixContrext.Folders ?? new string[0]).Join(bs);
             var sep = string.IsNullOrEmpty(folder) ? string.Empty : bs;
             _folders = $@"{sep}{folder}{sep}";
         }
@@ -23,19 +23,19 @@
         {
             get
             {
-                return $"Move class into '{_folders}{_fix.Name}'";
+                return $"Move class into '{_folders}{_fixContext.Name}.cs'";
             }
         }
         protected override async Task<Solution> GetChangedSolutionAsync(CancellationToken cancellationToken)
         {
-            var document = _fix.Solution.GetDocument(_fix.DocumentId);
+            var document = _fixContext.Solution.GetDocument(_fixContext.DocumentId);
             var root = (await document.GetSyntaxTreeAsync(cancellationToken)).GetCompilationUnitRoot(cancellationToken);
 
-            var newContent = root.ExtractClass(_fix.Span);
-            var newDocument = document.Project.AddDocument(_fix.Name, newContent, _fix.Folders);
+            var newContent = root.ExtractClass(_fixContext.Span);
+            var newDocument = document.Project.AddDocument($"{_fixContext.Name}.cs", newContent, _fixContext.Folders);
 
             document = newDocument.Project.GetDocument(document.Id);
-            root = root.RemoveNode(root.FindNode(_fix.Span), SyntaxRemoveOptions.KeepNoTrivia);
+            root = root.RemoveNode(root.FindNode(_fixContext.Span), SyntaxRemoveOptions.KeepNoTrivia);
 
             document = document.WithSyntaxRoot(root);
             return document.Project.Solution;

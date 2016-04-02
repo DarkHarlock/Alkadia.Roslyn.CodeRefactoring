@@ -67,7 +67,7 @@
             var result = await action.Execute(CancellationToken.None);
 
             Assert.Null(result.GetDocument(doc.Id));
-            var newDoc = result.GetProject(project.Id).Documents.Where(d => d.Name == "Success.cs").FirstOrDefault();
+            var newDoc = result.GetProject(project.Id).Documents.FirstOrDefault(d => d.Name == "Success.cs");
             Assert.NotNull(newDoc);
             Assert.Equal(2, newDoc.Folders.Zip(folders, (a, b) => a == b).Count());
 

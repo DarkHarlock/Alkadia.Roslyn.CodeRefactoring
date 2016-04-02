@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Microsoft.CodeAnalysis;
+    using Microsoft.CodeAnalysis.CSharp;
     using Microsoft.CodeAnalysis.CSharp.Syntax;
     using Microsoft.CodeAnalysis.Text;
     public static class SyntaxExtensions
@@ -19,7 +20,7 @@
                 .DescendantNodes(x => x == node || !(x is NamespaceDeclarationSyntax))
                 .OfType<NamespaceDeclarationSyntax>();
         }
-        private class Node<T>
+        private class Node<T> where T : class
         {
             public Node<T> Parent { get; set; }
             public List<Node<T>> Child { get; } = new List<Node<T>>();
@@ -64,8 +65,7 @@
                 Value = x.v.Value as NamespaceDeclarationSyntax,
                 c = x.c.Select(n => n.Name.ToString()).Join(".")
             })
-            .Where(x => x.c == @namespace)
-            .FirstOrDefault();
+            .FirstOrDefault(x => x.c == @namespace);
 
             return result?.Value;
         }
@@ -93,6 +93,11 @@
                 .DescendantNodes(n => !(n is BaseTypeDeclarationSyntax))
                 .OfType<BaseTypeDeclarationSyntax>()
                 .ToArray();
+        }
+
+        public static string GetParameterName(this ParameterSyntax parameter)
+        {
+            return parameter.Identifier.ValueText;
         }
     }
 }

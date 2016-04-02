@@ -149,12 +149,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="..\GlobalAssemblyInfo.cs">
+      <Link>Properties\GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AutoFakeItEasyDataAttribute.cs" />
     <Compile Include="CodeActions\ChangeNamespaceCodeActionTests.cs" />
+    <Compile Include="CodeActions\InitializeFieldsFromConstructorCodeActionTests.cs" />
     <Compile Include="CodeActions\MoveDocumentCodeActionTests.cs" />
     <Compile Include="CodeActions\RenameDocumentCodeActionTests.cs" />
     <Compile Include="Providers\FixNamespaceCodeRefactoringProviderTests.cs" />
     <Compile Include="ICodeRefactoringContextSubscriber.cs" />
+    <Compile Include="Providers\InitializeFieldsFromConstructorCodeRefactoringProviderTests.cs" />
     <Compile Include="Providers\MoveBaseTypeCodeRefactoringProviderTests.cs" />
     <Compile Include="CodeActions\MoveClassCodeActionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

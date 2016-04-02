@@ -67,7 +67,7 @@
 
             var document = result.GetDocument(doc.Id);
             Assert.Null(document);
-            document = result.GetProject(project.Id).Documents.Where(d => d.Name == "Success.cs").FirstOrDefault();
+            document = result.GetProject(project.Id).Documents.FirstOrDefault(d => d.Name == "Success.cs");
             Assert.NotNull(document);
             Assert.Equal(documentToMove, (await document.GetTextAsync()).ToString());
         }

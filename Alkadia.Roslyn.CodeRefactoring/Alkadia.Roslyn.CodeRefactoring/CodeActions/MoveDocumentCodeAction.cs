@@ -10,14 +10,14 @@
     {
         private readonly string _folder;
         private readonly string _name;
-        private readonly MoveDocumentCodeActionContext _fix;
-        public MoveDocumentCodeAction(MoveDocumentCodeActionContext fix)
+        private readonly MoveDocumentCodeActionContext _fixContext;
+        public MoveDocumentCodeAction(MoveDocumentCodeActionContext fixContext)
         {
-            _fix = fix;
-            _folder = fix.Folders.Join(@"\");
+            _fixContext = fixContext;
+            _folder = fixContext.Folders.Join(@"\");
             if (!string.IsNullOrWhiteSpace(_folder))
                 _folder = "\\" + _folder + "\\";
-            _name = fix.Name;
+            _name = fixContext.Name;
         }
         public override string Title
         {
@@ -28,19 +28,19 @@
         }
         public MoveDocumentCodeActionContext FixParameters
         {
-            get { return _fix; }
+            get { return _fixContext; }
         }
         protected override Task<Solution> GetChangedSolutionAsync(CancellationToken cancellationToken)
         {
-            return MoveDocumentToFolderAsync(_fix, cancellationToken);
+            return MoveDocumentToFolderAsync(_fixContext, cancellationToken);
         }
-        private static async Task<Solution> MoveDocumentToFolderAsync(MoveDocumentCodeActionContext fix, CancellationToken cancellationToken)
+        private static async Task<Solution> MoveDocumentToFolderAsync(MoveDocumentCodeActionContext context, CancellationToken cancellationToken)
         {
-            var solution = fix.Solution;
-            var document = solution.GetDocument(fix.DocumentId);
+            var solution = context.Solution;
+            var document = solution.GetDocument(context.DocumentId);
             var projectId = document.Project.Id;
-            solution = solution.RemoveDocument(fix.DocumentId);
-            solution = solution.AddDocument(DocumentId.CreateNewId(projectId), $"{fix.Name}.cs", await document.GetTextAsync(cancellationToken), fix.Folders);
+            solution = solution.RemoveDocument(context.DocumentId);
+            solution = solution.AddDocument(DocumentId.CreateNewId(projectId), $"{context.Name}.cs", await document.GetTextAsync(cancellationToken), context.Folders);
             return solution;
         }
     }

@@ -95,7 +95,7 @@ namespace Test {
 
         [Theory]
         [AutoFakeItEasyData]
-        public async Task Should_register_when_context_is_a_basetype_and_target_file_by_convention_does_not_exist(
+        public async Task Should_register_move_class_when_more_than_one_declaration_exist_and_context_is_a_basetype_and_target_file_by_convention_does_not_exist(
             ICodeRefactoringContextSubscriber interceptor,
             MoveClassCodeRefactoringProvider sut
         )
@@ -109,8 +109,12 @@ namespace TestSuite {
         }
     }
     namespace Folder {
-        public class Other {
+        public class OtherClass {
             public class InnerOther { }
+        }
+        public struct OtherStruct {
+        }
+        public enum OtherEnum {
         }
     }
 }
@@ -122,9 +126,11 @@ namespace Test {
 ";
             var cases = new[]
             {
-                "Foo",
-                "Other",
-                "Alone"
+                "Foo", //class Foo can only be extracted on folder Inner not on itself
+                "OtherClass", //class OtherClass has right namespace, so can only be extracted in current folder
+                "OtherStruct", //same as before
+                "OtherEnum", //same as before
+                "Alone" //class Alone is from a namespace not based on assembly so can be only extracted in current folder
             }.Select(c => GetContext(
                 CaseTest,
                 new TextSpan(CaseTest.IndexOf(c, StringComparison.Ordinal), c.Length),
@@ -144,16 +150,18 @@ namespace Test {
 
             A
                 .CallTo(() => interceptor.Register(A<CodeAction>.Ignored))
-                .MustHaveHappened(Repeated.Exactly.Times(3));
+                .MustHaveHappened(Repeated.Exactly.Times(cases.Count()));
 
             Assert.Equal("Move class into '\\Inner\\Foo.cs'", actions[0].Title);
-            Assert.Equal("Move class into '\\Folder\\Other.cs'", actions[1].Title);
-            Assert.Equal("Move class into '\\Folder\\Alone.cs'", actions[2].Title);
+            Assert.Equal("Move class into '\\Folder\\OtherClass.cs'", actions[1].Title);
+            Assert.Equal("Move class into '\\Folder\\OtherStruct.cs'", actions[2].Title);
+            Assert.Equal("Move class into '\\Folder\\OtherEnum.cs'", actions[3].Title);
+            Assert.Equal("Move class into '\\Folder\\Alone.cs'", actions[4].Title);
         }
 
         [Theory]
         [AutoFakeItEasyData]
-        public async Task Should_register_twice(
+        public async Task Should_register_rename_and_move_document(
             ICodeRefactoringContextSubscriber interceptor,
             MoveClassCodeRefactoringProvider sut
         )
@@ -162,7 +170,6 @@ namespace Test {
 using System;
 namespace TestSuite.Inner {
     public class Foo {
-        private class Inner { }
     }
 }
 ";
@@ -186,8 +193,8 @@ namespace TestSuite.Inner {
                 .CallTo(() => interceptor.Register(A<CodeAction>.Ignored))
                 .MustHaveHappened(Repeated.Exactly.Twice);
 
-            Assert.Equal("Move class into '\\Inner\\Foo.cs'", actions[0].Title);
-            Assert.Equal("Move class into '\\Folder\\Foo.cs'", actions[1].Title);
+            Assert.Equal("Rename File to 'Foo.cs'", actions[0].Title);
+            Assert.Equal("Move File to '\\Inner\\Foo.cs'", actions[1].Title);
         }
     }
 }

@@ -7,6 +7,7 @@
     using Microsoft.CodeAnalysis.Text;
     using Xunit;
     using CodeRefactoring.CodeActions;
+    using Microsoft.CodeAnalysis.Formatting;
     public class MoveClassCodeActionTests
     {
         private class TestableMoveClassCodeAction: MoveClassCodeAction
@@ -81,8 +82,8 @@ namespace Test {
                 Solution = document.Project.Solution,
                 DocumentId = document.Id,
                 Folders = new[] { "Inner" },
-                Name = "Class.cs",
-                Span = new TextSpan(CaseTest.IndexOf("Foo"), 3)
+                Name = "Class",
+                Span = new TextSpan(CaseTest.IndexOf("Foo", System.StringComparison.Ordinal), 3)
             });
 
             Assert.Equal("Move class into '\\Inner\\Class.cs'", action.Title);
@@ -91,7 +92,7 @@ namespace Test {
             var newProject = newSolution.GetProject(project.Id);
 
             var exp = newProject.GetDocument(document.Id);
-            var newDocument = newProject.Documents.Where(d => d.Name == "Class.cs").FirstOrDefault();
+            var newDocument = newProject.Documents.FirstOrDefault(d => d.Name == "Class.cs");
 
             Assert.NotNull(exp);
 
@@ -127,8 +128,8 @@ public class Other {
                 Solution = document.Project.Solution,
                 DocumentId = document.Id,
                 Folders = null,
-                Name = "Foo.cs",
-                Span = new TextSpan(CaseTest.IndexOf("Foo"), 3)
+                Name = "Foo",
+                Span = new TextSpan(CaseTest.IndexOf("Foo", System.StringComparison.Ordinal), 3)
             });
 
             Assert.Equal("Move class into 'Foo.cs'", action.Title);
@@ -137,7 +138,7 @@ public class Other {
             var newProject = newSolution.GetProject(project.Id);
 
             var exp = newProject.GetDocument(document.Id);
-            var newDocument = newProject.Documents.Where(d => d.Name == "Foo.cs").FirstOrDefault();
+            var newDocument = newProject.Documents.FirstOrDefault(d => d.Name == "Foo.cs");
 
             Assert.NotNull(exp);
 

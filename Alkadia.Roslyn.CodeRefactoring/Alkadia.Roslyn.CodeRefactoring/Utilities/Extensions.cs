@@ -35,13 +35,12 @@
                 .Where(d => d.Name.ToLowerInvariant() == newFileNameLower)
                 //and that target new file does not exist in project
                 .Where(d => d.Folders.Count == folders.Length)
-                .Where(d =>                    
+                .FirstOrDefault(d =>
                     d.Folders.Zip(
                         folders,
                         (f, s) => string.Compare(f, s, StringComparison.OrdinalIgnoreCase) == 0
                     ).All(f => f)
-                )
-                .FirstOrDefault();
+                );
         }
     }
 }
