@@ -26,13 +26,13 @@
         [Fact]
         public void TestCase1()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     public class Foo {}
 }";
-            var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), 1));
+            var caseNode = GetNode(TestCase);
+            var result = caseNode.ExtractClass(new TextSpan(TestCase.IndexOf("Foo", StringComparison.Ordinal), 1));
 
-            const string TestExpected = CaseTest;
+            const string TestExpected = TestCase;
 
             Assert.Equal(GetNode(TestExpected).ToString(), result.ToString());
 
@@ -41,12 +41,12 @@
         [Fact]
         public void TestCase2()
         {
-            const string CaseTest = @"using System;
+            const string TestCase = @"using System;
 namespace Test {
     public class Foo {}
 }";
-            var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Test", StringComparison.Ordinal), 1));
+            var caseNode = GetNode(TestCase);
+            var result = caseNode.ExtractClass(new TextSpan(TestCase.IndexOf("Test", StringComparison.Ordinal), 1));
 
             Assert.Null(result);
         }
@@ -54,16 +54,16 @@ namespace Test {
         [Fact]
         public void TestCase3()
         {
-            const string CaseTest = @"using System;
+            const string TestCase = @"using System;
 namespace Test {
     namespace Inner {
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), 1));
+            var caseNode = GetNode(TestCase);
+            var result = caseNode.ExtractClass(new TextSpan(TestCase.IndexOf("Foo", StringComparison.Ordinal), 1));
 
-            const string TestExpected = CaseTest;
+            const string TestExpected = TestCase;
 
             Assert.Equal(GetNode(TestExpected).ToString(), result.ToString());
         }
@@ -71,7 +71,7 @@ namespace Test {
         [Fact]
         public void TestCase4()
         {
-            const string CaseTest = @"using System;
+            const string TestCase = @"using System;
 namespace Test {
     namespace Inner {
         public class Foo {
@@ -80,8 +80,8 @@ namespace Test {
         public class Other {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
-            var result = caseNode.ExtractClass(new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), 1));
+            var caseNode = GetNode(TestCase);
+            var result = caseNode.ExtractClass(new TextSpan(TestCase.IndexOf("Foo", StringComparison.Ordinal), 1));
 
             const string TestExpected = @"using System;
 namespace Test {

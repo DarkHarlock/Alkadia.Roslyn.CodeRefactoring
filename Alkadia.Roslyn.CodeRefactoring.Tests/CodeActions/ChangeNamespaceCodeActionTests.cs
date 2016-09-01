@@ -45,16 +45,17 @@
         [Fact]
         public async Task Case1()
         {
-            var refactorDocumentCode = @"namespace Foo {
+            var refactorDocumentCode = @"namespace Foo.Bar {
     public class Test {
-        public void Do() {}
+        public void Do() { new Helper(); }
     }
 }
 ";
-            var otherDocumentCode = @"namespace Foo {
+            var otherDocumentCode = @"namespace Foo.Bar {
     public class Tester {
         void Do() { new Test().Do(); }
     }
+    public class Helper {}
 }
 ";
             var project = CreateProject(CreateSolution(), "TestSuite.Inner");
@@ -69,21 +70,23 @@
             {
                 DocumentId = refactorDocumentId,
                 Solution = solution,
-                NamespaceToFix = "Foo",
+                NamespaceToFix = "Foo.Bar",
                 NewNamespace = "TestSuite.Inner"
             }).Execute(CancellationToken.None);
 
-            var refactorDocumentCodeFixed = @"namespace TestSuite.Inner {
+            var refactorDocumentCodeFixed = @"using Foo.Bar;
+namespace TestSuite.Inner {
     public class Test {
-        public void Do() {}
+        public void Do() { new Helper(); }
     }
 }
 ";
             var otherDocumentCodeFixed = @"using TestSuite.Inner;
-namespace Foo {
+namespace Foo.Bar {
     public class Tester {
         void Do() { new Test().Do(); }
     }
+    public class Helper {}
 }
 ";
             var refactorText = (await fixedSolution.GetDocument(refactorDocumentId).GetTextAsync()).ToString();
@@ -98,7 +101,7 @@ namespace Foo {
         {
             var refactorDocumentCode = @"namespace Foo {
     public class Test {
-        public void Do() {}
+        public void Do() { new Helper(); }
     }
 }
 ";
@@ -106,6 +109,7 @@ namespace Foo {
     public class Tester {
         void Do(Test test) { test.Do(); }
     }
+    public class Helper {}
 }
 ";
             var project = CreateProject(CreateSolution(), "TestSuite.Inner");
@@ -124,9 +128,10 @@ namespace Foo {
                 NewNamespace = "TestSuite.Inner"
             }).Execute(CancellationToken.None);
 
-            var refactorDocumentCodeFixed = @"namespace TestSuite.Inner {
+            var refactorDocumentCodeFixed = @"using Foo;
+namespace TestSuite.Inner {
     public class Test {
-        public void Do() {}
+        public void Do() { new Helper(); }
     }
 }
 ";
@@ -135,6 +140,7 @@ namespace Foo {
     public class Tester {
         void Do(Test test) { test.Do(); }
     }
+    public class Helper {}
 }
 ";
             var refactorText = (await fixedSolution.GetDocument(refactorDocumentId).GetTextAsync()).ToString();
@@ -193,7 +199,7 @@ namespace Foo {
 }
 ";
             var otherDocumentCode = @"public class Tester {
-    void Do(Test test) { test.Do(); }
+    public void Do(Test test) { test.Do(); }
 }
 ";
             var project = CreateProject(CreateSolution(), "TestSuite.Inner");
@@ -220,7 +226,7 @@ public class Test {
 ";
             var otherDocumentCodeFixed = @"using TestSuite.Inner;
 public class Tester {
-    void Do(Test test) { test.Do(); }
+    public void Do(Test test) { test.Do(); }
 }
 ";
             var refactorText = (await fixedSolution.GetDocument(refactorDocumentId).GetTextAsync()).ToString();
@@ -229,5 +235,115 @@ public class Tester {
             Assert.Equal(refactorDocumentCodeFixed, refactorText);
             Assert.Equal(otherDocumentCodeFixed, otherText);
         }
+
+        [Fact]
+        public async Task Case5()
+        {
+            var refactorDocumentCode = @"namespace Foo.Bar {
+    public class Tester {
+        public void Do() { }
+    }
+    public class Test {
+        public void Do() { new Tester().Exec(); }
+    }
+}
+";
+            var otherDocumentCode = @"namespace Foo.Bar {
+    public static class Helper {
+        public static void Exec(this Tester t) { t.Do(); }
+    }
+}
+";
+            var project = CreateProject(CreateSolution(), "TestSuite.Inner");
+            var tmpDoc = project.AddDocument("z.cs", otherDocumentCode);
+            var otherDocumentId = tmpDoc.Id;
+            tmpDoc = tmpDoc.Project.AddDocument("Test.cs", refactorDocumentCode);
+            var refactorDocumentId = tmpDoc.Id;
+
+            var solution = tmpDoc.Project.Solution;
+
+            var fixedSolution = await new TestableChangeNamespaceCodeAction(new ChangeNamespaceCodeActionContext
+            {
+                DocumentId = refactorDocumentId,
+                Solution = solution,
+                NamespaceToFix = "Foo.Bar",
+                NewNamespace = "TestSuite.Inner"
+            }).Execute(CancellationToken.None);
+
+            var refactorDocumentCodeFixed = @"using Foo.Bar;
+namespace TestSuite.Inner {
+    public class Tester {
+        public void Do() { }
+    }
+    public class Test {
+        public void Do() { new Tester().Exec(); }
+    }
+}
+";
+            var otherDocumentCodeFixed = @"using TestSuite.Inner;
+namespace Foo.Bar {
+    public static class Helper {
+        public static void Exec(this Tester t) { t.Do(); }
+    }
+}
+";
+            var refactorText = (await fixedSolution.GetDocument(refactorDocumentId).GetTextAsync()).ToString();
+            var otherText = (await fixedSolution.GetDocument(otherDocumentId).GetTextAsync()).ToString();
+
+            Assert.Equal(refactorDocumentCodeFixed, refactorText);
+            Assert.Equal(otherDocumentCodeFixed, otherText);
+        }
+
+        [Fact]
+        public async Task Case6()
+        {
+            var refactorDocumentCode = @"namespace Foo.Bar {
+    public static class Test {
+        public static void Exec(this Tester t) { t.Do(); }
+    }
+}
+";
+            var otherDocumentCode = @"namespace Foo.Bar {
+    public class Tester {
+        public void Do() { }
+    }
+}
+";
+            var project = CreateProject(CreateSolution(), "TestSuite.Inner");
+            var tmpDoc = project.AddDocument("z.cs", otherDocumentCode);
+            var otherDocumentId = tmpDoc.Id;
+            tmpDoc = tmpDoc.Project.AddDocument("Test.cs", refactorDocumentCode);
+            var refactorDocumentId = tmpDoc.Id;
+
+            var solution = tmpDoc.Project.Solution;
+
+            var fixedSolution = await new TestableChangeNamespaceCodeAction(new ChangeNamespaceCodeActionContext
+            {
+                DocumentId = refactorDocumentId,
+                Solution = solution,
+                NamespaceToFix = "Foo.Bar",
+                NewNamespace = "TestSuite.Inner"
+            }).Execute(CancellationToken.None);
+
+            var refactorDocumentCodeFixed = @"using Foo.Bar;
+namespace TestSuite.Inner {
+    public static class Test {
+        public static void Exec(this Tester t) { t.Do(); }
+    }
+}
+";
+            var otherDocumentCodeFixed = @"namespace Foo.Bar {
+    public class Tester {
+        public void Do() { }
+    }
+}
+";
+            var refactorText = (await fixedSolution.GetDocument(refactorDocumentId).GetTextAsync()).ToString();
+            var otherText = (await fixedSolution.GetDocument(otherDocumentId).GetTextAsync()).ToString();
+
+            Assert.Equal(refactorDocumentCodeFixed, refactorText);
+            Assert.Equal(otherDocumentCodeFixed, otherText);
+        }
+
     }
 }

@@ -47,7 +47,7 @@
         [Fact]
         public async Task Should_move_Foo_to_folder_inner_into_class_dot_cs()
         {
-            const string CaseTest = @"using System;
+            const string TestCase = @"using System;
 namespace Test {
     namespace Inner {
         public class Foo {
@@ -76,14 +76,14 @@ namespace Test {
 }";
 
             var project = CreateProject(CreateSolution(), "TestSuite");
-            var document = project.AddDocument("Test.cs", CaseTest, new[] { "Folder" });
+            var document = project.AddDocument("Test.cs", TestCase, new[] { "Folder" });
             var action = new TestableMoveClassCodeAction(new MoveClassCodeActionContext
             {
                 Solution = document.Project.Solution,
                 DocumentId = document.Id,
                 Folders = new[] { "Inner" },
                 Name = "Class",
-                Span = new TextSpan(CaseTest.IndexOf("Foo", System.StringComparison.Ordinal), 3)
+                Span = new TextSpan(TestCase.IndexOf("Foo", System.StringComparison.Ordinal), 3)
             });
 
             Assert.Equal("Move class into '\\Inner\\Class.cs'", action.Title);
@@ -103,7 +103,7 @@ namespace Test {
         [Fact]
         public async Task Should_accept_null_folders_to_target_project_root()
         {
-            const string CaseTest = @"using System;
+            const string TestCase = @"using System;
 public class Foo {
     public string Hello() {return ""Hello"";}
 }
@@ -122,14 +122,14 @@ public class Other {
 }
 ";
             var project = CreateProject(CreateSolution(), "TestSuite");
-            var document = project.AddDocument("Test.cs", CaseTest, new[] { "Inner" });
+            var document = project.AddDocument("Test.cs", TestCase, new[] { "Inner" });
             var action = new TestableMoveClassCodeAction(new MoveClassCodeActionContext
             {
                 Solution = document.Project.Solution,
                 DocumentId = document.Id,
                 Folders = null,
                 Name = "Foo",
-                Span = new TextSpan(CaseTest.IndexOf("Foo", System.StringComparison.Ordinal), 3)
+                Span = new TextSpan(TestCase.IndexOf("Foo", System.StringComparison.Ordinal), 3)
             });
 
             Assert.Equal("Move class into 'Foo.cs'", action.Title);

@@ -26,10 +26,10 @@
         [Fact]
         public void TestCase1()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     public class Foo {}
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Changed", "Test");
 
             const string TestExpected = @"using Changed;
@@ -43,11 +43,11 @@ namespace Test {
         [Fact]
         public void TestCase2()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     using System;
     public class Foo {}
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Changed", "Test");
 
             const string TestExpected = @"namespace Test {
@@ -62,7 +62,7 @@ using Changed;
         [Fact]
         public void TestCase3()
         {
-            const string CaseTest = @"Using System;
+            const string TestCase = @"Using System;
 namespace Test {
     using System.IO;
     namespace Inner {
@@ -70,7 +70,7 @@ namespace Test {
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Changed", "Test.Inner");
 
             const string TestExpected = @"Using System;
@@ -90,12 +90,12 @@ using Changed;
         public void TestCase4()
         {
             var workspace = new AdhocWorkspace();
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Changed", "Test.Inner");
 
             const string TestExpected = @"using Changed;
@@ -112,12 +112,12 @@ namespace Test {
         public void TestCase5()
         {
             var workspace = new AdhocWorkspace();
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             caseNode = caseNode.AddUsing("Test.Changed", "Test.Inner");
             var result = Formatter.Format(caseNode, workspace);
 
@@ -134,13 +134,13 @@ namespace Test {
         [Fact]
         public void TestCase6()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     using System;
     namespace Inner {
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Test.Changed", "Test.Inner");
 
             const string TestExpected = @"namespace Test {
@@ -156,13 +156,13 @@ using Changed;
         [Fact]
         public void TestCase6_format()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     using System;
     namespace Inner {
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Test.Changed", "Test.Inner");
 
             const string TestExpected = @"namespace Test {
@@ -178,19 +178,18 @@ using Changed;
         [Fact]
         public void TestCase7()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         using System;
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("System", "Test.Inner");
 
             const string TestExpected = @"namespace Test {
     namespace Inner {
         using System;
-using System;
         public class Foo {}
     }
 }";
@@ -200,18 +199,17 @@ using System;
         [Fact]
         public void TestCase7_format()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         using System;
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("System", "Test.Inner");
 
             const string TestExpected = @"namespace Test {
     namespace Inner {
-        using System;
         using System;
         public class Foo {}
     }
@@ -222,13 +220,13 @@ using System;
         [Fact]
         public async Task TestCase7_simplified()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         using System;
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("System", "Test.Inner");
 
             const string TestExpected = @"namespace Test {
@@ -256,16 +254,16 @@ using System;
         [Fact]
         public void TestCase8()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         using System;
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("System", null);
 
-            const string TestExpected = @"using System;
+            const string TestExpected = @"
 namespace Test {
     namespace Inner {
         using System;
@@ -278,16 +276,33 @@ namespace Test {
         [Fact]
         public void TestCase9()
         {
-            const string CaseTest = @"namespace Test {
+            const string TestCase = @"namespace Test {
     namespace Inner {
         using System;
         public class Foo {}
     }
 }";
-            var caseNode = GetNode(CaseTest);
+            var caseNode = GetNode(TestCase);
             var result = caseNode.AddUsing("Test", "Test");
 
-            const string TestExpected = CaseTest;
+            const string TestExpected = TestCase;
+
+            Assert.Equal(GetNode(TestExpected).ToString(), result.ToString());
+        }
+
+        [Fact]
+        public void TestCase10()
+        {
+            const string TestCase = @"namespace Test {
+    namespace Inner {
+        using System;
+        public class Foo {}
+    }
+}";
+            var caseNode = GetNode(TestCase);
+            var result = caseNode.AddUsing("", "Test");
+
+            const string TestExpected = TestCase;
 
             Assert.Equal(GetNode(TestExpected).ToString(), result.ToString());
         }

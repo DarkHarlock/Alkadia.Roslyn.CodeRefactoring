@@ -51,7 +51,7 @@
             MoveClassCodeRefactoringProvider sut
         )
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace Test {
     public class Foo {
@@ -79,8 +79,8 @@ namespace Test {
                 "DateTime",
                 "new"
             }.Select(c => GetContext(
-                CaseTest,
-                new TextSpan(CaseTest.IndexOf(c, StringComparison.Ordinal), c.Length),
+                TestCase,
+                new TextSpan(TestCase.IndexOf(c, StringComparison.Ordinal), c.Length),
                 projectName: "TestSuite",
                 interceptRegister: interceptor.Register
             ));
@@ -100,7 +100,7 @@ namespace Test {
             MoveClassCodeRefactoringProvider sut
         )
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace TestSuite {
     namespace Inner {
@@ -132,8 +132,8 @@ namespace Test {
                 "OtherEnum", //same as before
                 "Alone" //class Alone is from a namespace not based on assembly so can be only extracted in current folder
             }.Select(c => GetContext(
-                CaseTest,
-                new TextSpan(CaseTest.IndexOf(c, StringComparison.Ordinal), c.Length),
+                TestCase,
+                new TextSpan(TestCase.IndexOf(c, StringComparison.Ordinal), c.Length),
                 projectName: "TestSuite",
                 documentName: "Foo",
                 folders: new[] { "Folder" },
@@ -166,7 +166,7 @@ namespace Test {
             MoveClassCodeRefactoringProvider sut
         )
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace TestSuite.Inner {
     public class Foo {
@@ -174,8 +174,8 @@ namespace TestSuite.Inner {
 }
 ";
             var context = GetContext(
-                CaseTest,
-                new TextSpan(CaseTest.IndexOf("Foo", StringComparison.Ordinal), "Foo".Length),
+                TestCase,
+                new TextSpan(TestCase.IndexOf("Foo", StringComparison.Ordinal), "Foo".Length),
                 projectName: "TestSuite",
                 documentName: "Other",
                 folders: new[] { "Folder" },

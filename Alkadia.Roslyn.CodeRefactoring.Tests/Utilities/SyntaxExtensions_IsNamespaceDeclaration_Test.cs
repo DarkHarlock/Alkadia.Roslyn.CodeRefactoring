@@ -85,14 +85,14 @@
         [Fact]
         public async Task Should_not_match_as_namespace_declaration()
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace Test {
     public class Foo {}
 }
 ";
 
-            var tree = CSharpSyntaxTree.ParseText(CaseTest);
+            var tree = CSharpSyntaxTree.ParseText(TestCase);
             var root = await tree.GetRootAsync();
 
             var cases = new[]
@@ -104,7 +104,7 @@ namespace Test {
                 "class",
                 "Foo"
             }
-            .Select(testcase => new TextSpan(CaseTest.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
+            .Select(testcase => new TextSpan(TestCase.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
             .Select(span => root.IsNamespaceDeclaration(span))
             .Where(x => x != null);
 
@@ -113,21 +113,21 @@ namespace Test {
         [Fact]
         public async Task Should_match_as_namespace_declaration()
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace Test {
     public class Foo {}
 }
 ";
 
-            var tree = CSharpSyntaxTree.ParseText(CaseTest);
+            var tree = CSharpSyntaxTree.ParseText(TestCase);
             var root = await tree.GetRootAsync();
 
             var cases = new[]
             {
                 "Test"
             }
-            .Select(testcase => new TextSpan(CaseTest.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
+            .Select(testcase => new TextSpan(TestCase.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
             .Select(span => root.IsNamespaceDeclaration(span))
             .Where(x => x != null)
             .ToArray();
@@ -138,14 +138,14 @@ namespace Test {
         [Fact]
         public async Task Should_match_as_namespace_declaration2()
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace TestSuite.Inner {
     public class Foo {}
 }
 ";
 
-            var tree = CSharpSyntaxTree.ParseText(CaseTest);
+            var tree = CSharpSyntaxTree.ParseText(TestCase);
             var root = await tree.GetRootAsync();
 
             var cases = new[]
@@ -154,7 +154,7 @@ namespace TestSuite.Inner {
                 "Suite",
                 "Inner"
             }
-            .Select(testcase => new TextSpan(CaseTest.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
+            .Select(testcase => new TextSpan(TestCase.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
             .Select(span => root.IsNamespaceDeclaration(span))
             .Where(x => x != null)
             .ToArray();
@@ -167,14 +167,14 @@ namespace TestSuite.Inner {
         [Fact]
         public async Task Should_match_as_namespace_declaration3()
         {
-            const string CaseTest = @"
+            const string TestCase = @"
 using System;
 namespace TestSuite.Inner.Other {
     public class Foo {}
 }
 ";
 
-            var tree = CSharpSyntaxTree.ParseText(CaseTest);
+            var tree = CSharpSyntaxTree.ParseText(TestCase);
             var root = await tree.GetRootAsync();
 
             var cases = new[]
@@ -184,7 +184,7 @@ namespace TestSuite.Inner.Other {
                 "Inner",
                 "Other"
             }
-            .Select(testcase => new TextSpan(CaseTest.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
+            .Select(testcase => new TextSpan(TestCase.IndexOf(testcase, StringComparison.Ordinal), testcase.Length))
             .Select(span => root.IsNamespaceDeclaration(span))
             .Where(x => x != null)
             .ToArray();

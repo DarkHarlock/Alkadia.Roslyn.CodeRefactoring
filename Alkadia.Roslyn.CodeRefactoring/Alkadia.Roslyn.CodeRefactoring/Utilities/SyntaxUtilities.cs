@@ -1,5 +1,6 @@
 ﻿namespace Alkadia.Roslyn.CodeRefactoring.Utilities
 {
+    using System.Collections.Generic;
     using System.Linq;
     using Microsoft.CodeAnalysis;
     using Microsoft.CodeAnalysis.CSharp;
@@ -19,8 +20,22 @@
             )
             .WithTrailingTrivia(SyntaxFactory.CarriageReturnLineFeed)
             .WithAdditionalAnnotations(Formatter.Annotation)
-            .WithAdditionalAnnotations(Simplifier.Annotation);
+            /*.WithAdditionalAnnotations(Simplifier.Annotation)*/;
         }
+
+        //public static IEnumerable<string> GetNamespaceTreePathList(string @namespace)
+        //{
+        //    var nsTokens = @namespace.Split('.');
+        //    if (nsTokens.Length == 0) yield break;
+        //    if (nsTokens.Length >= 1) yield return nsTokens[0];
+
+        //    var baseNs = nsTokens[0];
+        //    for (var i = 1; i < nsTokens.Length; i++)
+        //    {
+        //        baseNs = $"{baseNs}.{nsTokens[i]}";
+        //        yield return baseNs;
+        //    }
+        //}
 
         public static CompilationUnitSyntax ChangeNamespace(this CompilationUnitSyntax root, string @namespace, string newNamespace)
         {
@@ -54,12 +69,22 @@
             if (decl == null) return root;
 
             var newdecl = decl.WithName(SyntaxFactory.IdentifierName(newNamespace).WithTrailingTrivia(SyntaxFactory.ElasticSpace));
-            root = root.ReplaceNode(decl, newdecl);
+            root = root
+                .ReplaceNode(decl, newdecl);
+
             return root;
         }
         public static CompilationUnitSyntax AddUsing(this CompilationUnitSyntax root, string @namespace, string targetNamespace)
         {
+            if (string.IsNullOrWhiteSpace(@namespace))
+                return root;
+
             var usings = root.DescendantNodes(n => true).OfType<UsingDirectiveSyntax>();
+
+            var usingsStr = usings.Select(u => u.Name.ToString()).ToList();
+            if (usingsStr.Contains(@namespace))
+                return root;
+
             var lastUsing = usings.LastOrDefault();
             var namespaceDecl = !string.IsNullOrWhiteSpace(targetNamespace) ? root.GetNamespaceDeclaration(targetNamespace) : null;
 
@@ -79,7 +104,6 @@
 
             @namespace = nsTokens.Join(".");
             var newNamespaceDecl = namespaceDecl.AddUsings(CreateUsing(@namespace));
-
             root = root.ReplaceNode(namespaceDecl, newNamespaceDecl);
             return root;
         }
@@ -102,7 +126,7 @@
             var usings = root
                 .DescendantNodesAndSelf(n => true)
                 .OfType<UsingDirectiveSyntax>()
-                .Select(u => u.WithAdditionalAnnotations(Simplifier.Annotation));
+                /*.Select(u => u.WithAdditionalAnnotations(Simplifier.Annotation))*/;
 
             var extAlias = root
                 .ChildNodes()

@@ -31,6 +31,21 @@
         {
             return FixAsync(_fixContext, cancellationToken);
         }
+
+        private static string ResolveNamespace(INamespaceSymbol nsSymbol)
+        {
+            var ret = nsSymbol.Name;
+            while (nsSymbol.ContainingNamespace != null)
+            {
+                if (string.IsNullOrWhiteSpace(nsSymbol.ContainingNamespace.Name))
+                    break;
+
+                ret = $"{nsSymbol.ContainingNamespace.Name}.{ret}";
+                nsSymbol = nsSymbol.ContainingNamespace;
+            }
+            return ret;
+        }
+
         private static async Task<Solution> FixAsync(ChangeNamespaceCodeActionContext context, CancellationToken cancellationToken)
         {
             var solution = context.Solution;
@@ -49,12 +64,23 @@
 
             // symbol representing the type
             var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-            var typeSymbols = typeDeclarationToChange.Select(type => new { type, symbol = semanticModel.GetDeclaredSymbol(type, cancellationToken) });
+            var typeSymbols = typeDeclarationToChange
+                .Select(type => new { type, symbol = (ISymbol)semanticModel.GetDeclaredSymbol(type, cancellationToken) }).ToList();
+
+            typeSymbols = typeSymbols.Concat(
+                typeDeclarationToChange.OfType<ClassDeclarationSyntax>()
+                .SelectMany(type => type.Members)
+                .Select(m => new { type = (BaseTypeDeclarationSyntax)m.Parent, symbol = semanticModel.GetDeclaredSymbol(m, cancellationToken) as IMethodSymbol })
+                .Where(m => m.symbol != null)
+                .Where(m => m.symbol.IsExtensionMethod)
+                .Select(m => new { m.type, symbol = (ISymbol)m.symbol })
+            ).ToList();
+
             // get all references
-            var getReferencesTasks = typeSymbols.Select(type => new { type.type, type.symbol, refTask = SymbolFinder.FindReferencesAsync(type.symbol, solution) });
-            var getReferencesResult = await Task.WhenAll(getReferencesTasks.Select(r => r.refTask));
+            var getReferencesTasks = typeSymbols.Select(async type => new { type.type, type.symbol, @ref = await SymbolFinder.FindReferencesAsync(type.symbol, solution) });
+            var getReferencesResult = await Task.WhenAll(getReferencesTasks);
             // get all documents with references
-            var references = getReferencesTasks.SelectMany(x => x.refTask.Result.Select(reference => new { x.type, x.symbol, reference }));
+            var references = getReferencesResult.SelectMany(x => x.@ref.Select(reference => new { x.type, x.symbol, reference }));
             var documents = references
                 .SelectMany(r => r.reference.Locations)
                 .Select(l => new { l.Document.Id, l.Location.SourceTree, l.Location.SourceSpan });
@@ -74,7 +100,30 @@
             }
 
             root = root.ChangeNamespace(context.NamespaceToFix, context.NewNamespace);
-            solution = solution.GetDocument(context.DocumentId).WithSyntaxRoot(root).Project.Solution;
+            document = solution.GetDocument(context.DocumentId).WithSyntaxRoot(root);
+            var model = await document.GetSemanticModelAsync(cancellationToken);
+
+            var unresolved = (await document.GetSyntaxTreeAsync(cancellationToken))
+                .GetCompilationUnitRoot(cancellationToken)
+                .DescendantNodes()
+                .OfType<IdentifierNameSyntax>()
+                .Where(x => model.GetSymbolInfo(x).Symbol == null);                
+
+            var candidateList = await Task.WhenAll(unresolved.Select(id => SymbolFinder.FindDeclarationsAsync(document.Project, id.Identifier.ValueText, false)));
+            var candidates = candidateList
+                .SelectMany(x => x)
+                .Select(x => ResolveNamespace(x.ContainingNamespace))
+                .Distinct()
+                .ToList();
+
+            foreach (var candidate in candidates)
+            {
+                if (context.NamespaceToFix.Contains(candidate))
+                    root = root.AddUsing(candidate, null);
+            }
+
+            document = solution.GetDocument(context.DocumentId).WithSyntaxRoot(root);
+            solution = document.Project.Solution;
 
             return solution;
         }
